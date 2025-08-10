@@ -6,7 +6,7 @@ WORKDIR /app
 
 # 将jar文件和启动脚本复制到容器中
 COPY build/libs/*.jar app.jar
-COPY src/main/resources/scripts/startup.sh startup.sh
+COPY scripts/startup.sh startup.sh
 
 # 设置启动脚本的执行权限
 RUN chmod +x startup.sh
