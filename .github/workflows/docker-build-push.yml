@@ -18,9 +18,9 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
-        
+
     - name: Cache Gradle packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.gradle/caches
@@ -83,14 +83,12 @@ jobs:
         platforms: linux/amd64,linux/arm64
         cache-from: type=gha
         cache-to: type=gha,mode=max
-        
+
     - name: Create GitHub Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ steps.extract_version.outputs.VERSION }}
+        tag_name: ${{ github.ref_name }}
+        name: Release ${{ steps.extract_version.outputs.VERSION }}
         body: |
           ## 🚀 Release ${{ steps.extract_version.outputs.VERSION }}
           
@@ -115,9 +113,12 @@ jobs:
           ```
         draft: false
         prerelease: false
+        files: build/libs/mail-service-${{ steps.extract_version.outputs.VERSION }}.jar
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload JAR artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: mail-service-${{ steps.extract_version.outputs.VERSION }}
         path: build/libs/mail-service-${{ steps.extract_version.outputs.VERSION }}.jar
