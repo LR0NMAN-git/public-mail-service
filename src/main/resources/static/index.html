@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邮箱收件箱</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .email-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            border-left: 4px solid #007bff;
+        }
+        .email-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        .email-subject {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #2c3e50;
+        }
+        .email-from, .email-date {
+            color: #7f8c8d;
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+        .email-content {
+            margin-top: 18px;
+            color: #34495e;
+            line-height: 1.6;
+            border-top: 1px solid #ecf0f1;
+            padding-top: 15px;
+        }
+        .verification-code {
+            background-color: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            position: relative;
+            display: inline-block;
+        }
+        .copy-icon {
+            cursor: pointer;
+            margin-left: 8px;
+            color: #007bff;
+            font-weight: bold;
+            user-select: none;
+        }
+        .copy-icon:hover {
+            color: #0056b3;
+        }
+        .login-form {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .btn {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,123,255,0.25);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,123,255,0.35);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>邮箱收件箱</h1>
+        
+        <div class="login-form">
+            <div style="margin-bottom: 15px;">
+                <input type="password" id="password" placeholder="请输入密码" style="padding: 10px; width: 200px; border-radius: 5px; border: 1px solid #ccc;" />
+            </div>
+            <button class="btn" onclick="fetchEmailsWithPassword()">获取/刷新邮件</button>
+        </div>
+        
+        <div id="emails-container"></div>
+    </div>
+
+    <script>
+        // 页面加载时读取cookie中的密码并填充到密码框
+        window.onload = function() {
+            const savedPassword = getCookie('jtcwzy.mail-service.password');
+            if (savedPassword) {
+                document.getElementById('password').value = savedPassword;
+            }
+        };
+
+        // 获取cookie的函数
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        // 设置cookie的函数，设置为无限期
+        function setCookie(name, value, days) {
+            const expires = new Date();
+            // 设置为一个遥远的未来日期，实现永不过期
+            expires.setTime(expires.getTime() + (365 * 100 * 24 * 60 * 60 * 1000)); // 100年
+            document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+        }
+        
+        function fetchEmails() {
+            // 获取按钮元素并禁用
+            const button = document.querySelector('.btn');
+            button.disabled = true;
+            button.style.opacity = '0.6';
+            
+            fetch('/emails')
+                .then(response => response.json())
+                .then(apiResponse => {
+                    // Handle the API response structure
+                    if (apiResponse.success) {
+                        const emails = apiResponse.data;
+                        const container = document.getElementById('emails-container');
+                        container.innerHTML = '';
+                        
+                        if (emails && Array.isArray(emails)) {
+                            emails.forEach(email => {
+                                const emailCard = document.createElement('div');
+                                emailCard.className = 'email-card';
+                                
+                                // 处理邮件内容，检测并高亮验证码
+                                let emailContent = email.content || '无内容';
+                                // 只匹配4-6位纯数字的验证码
+                                const codeRegex = /(?:^|\s)(\d{4,6})(?:\s|$)/g;
+                                emailContent = emailContent.replace(codeRegex, function(match, p1) {
+                                    // 额外检查：确保不是单词的一部分
+                                    if (match.charAt(0) === ' ' || match.charAt(match.length - 1) === ' ' || 
+                                        match.charAt(0) === '\n' || match.charAt(match.length - 1) === '\n') {
+                                        return ` <span class="verification-code">${p1}<span class="copy-icon" onclick="copyToClipboard('${p1}', this)">📋</span></span> `;
+                                    }
+                                    return match;
+                                });
+                                
+                                emailCard.innerHTML = `
+                                    <div class="email-subject">${email.subject || '无主题'}</div>
+                                    <div class="email-from">发件人: ${email.from || '未知'}</div>
+                                    <div class="email-date">日期: ${email.date || '未知'}</div>
+                                    <div class="email-content">${emailContent}</div>
+                                `;
+                                container.appendChild(emailCard);
+                            });
+                        } else {
+                            container.innerHTML = '<p>没有找到邮件</p>';
+                        }
+                    } else {
+                        console.error('API Error:', apiResponse.message);
+                        alert('获取邮件失败: ' + apiResponse.message);
+                    }
+                    
+                    // 恢复按钮状态
+                    button.disabled = false;
+                    button.style.opacity = '1';
+                })
+                .catch(error => {
+                    console.error('Error fetching emails:', error);
+                    alert('获取邮件失败');
+                    
+                    // 恢复按钮状态
+                    button.disabled = false;
+                    button.style.opacity = '1';
+                });
+        }
+        
+        // 复制到剪贴板功能
+        function copyToClipboard(text, element) {
+            // 创建临时输入框
+            const tempInput = document.createElement('input');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            
+            // 选中并复制
+            tempInput.select();
+            document.execCommand('copy');
+            
+            // 移除临时输入框
+            document.body.removeChild(tempInput);
+            
+            // 显示复制成功提示
+            const originalText = element.textContent;
+            element.textContent = '✅';
+            setTimeout(() => {
+                element.textContent = originalText;
+            }, 2000);
+        }
+        
+        // SHA-256加密函数
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+        
+        // 修改fetchEmails函数以包含密码验证
+        async function fetchEmailsWithPassword() {
+            // 获取密码输入框的值
+            const password = document.getElementById('password').value;
+            
+            // 如果密码为空，提示用户输入密码
+            if (!password) {
+                alert('请输入密码');
+                return;
+            }
+            
+            // 加密密码
+            const encryptedPassword = await sha256(password);
+            
+            // 获取按钮元素并禁用
+            const button = document.querySelector('.btn');
+            button.disabled = true;
+            button.style.opacity = '0.6';
+            
+            fetch('/emails', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${encryptedPassword}`
+                }
+            })
+                .then(response => {
+                    // 检查是否为401未授权状态
+                    if (response.status === 401) {
+                        return response.json().then(errorResponse => {
+                            // 恢复按钮状态
+                            button.disabled = false;
+                            button.style.opacity = '1';
+                            
+                            // 显示后端返回的错误信息
+                            alert(errorResponse.message || '密码错误');
+                            throw new Error('Unauthorized');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(apiResponse => {
+                    // Handle the API response structure
+                    if (apiResponse.success) {
+                        const emails = apiResponse.data;
+                
+                        const container = document.getElementById('emails-container');
+                        container.innerHTML = '';
+                        
+                        if (emails && Array.isArray(emails)) {
+                            emails.forEach(email => {
+                                const emailCard = document.createElement('div');
+                                emailCard.className = 'email-card';
+                                
+                                // 处理邮件内容，检测并高亮验证码
+                                let emailContent = email.content || '无内容';
+                                // 只匹配4-6位纯数字的验证码
+                                const codeRegex = /(?:^|\s)(\d{4,6})(?:\s|$)/g;
+                                emailContent = emailContent.replace(codeRegex, function(match, p1) {
+                                    // 额外检查：确保不是单词的一部分
+                                    if (match.charAt(0) === ' ' || match.charAt(match.length - 1) === ' ' || 
+                                        match.charAt(0) === '\n' || match.charAt(match.length - 1) === '\n') {
+                                        return ` <span class="verification-code">${p1}<span class="copy-icon" onclick="copyToClipboard('${p1}', this)">📋</span></span> `;
+                                    }
+                                    return match;
+                                });
+                                
+                                emailCard.innerHTML = `
+                                    <div class="email-subject">${email.subject || '无主题'}</div>
+                                    <div class="email-from">发件人: ${email.from || '未知'}</div>
+                                    <div class="email-date">日期: ${email.date || '未知'}</div>
+                                    <div class="email-content">${emailContent}</div>
+                                `;
+                                container.appendChild(emailCard);
+                            });
+                        } else {
+                            container.innerHTML = '<p>没有找到邮件</p>';
+                        }
+                        
+                        // 保存密码到cookie
+                        setCookie('jtcwzy.mail-service.password', password); // 无限期保存
+                    } else {
+                        console.error('API Error:', apiResponse.message);
+                        alert('获取邮件失败: ' + apiResponse.message);
+                    }
+                    
+                    // 恢复按钮状态
+                    button.disabled = false;
+                    button.style.opacity = '1';
+                })
+                .catch(error => {
+                    // 只有在非401错误的情况下才显示获取邮件失败
+                    if (error.message !== 'Unauthorized') {
+                        console.error('Error fetching emails:', error);
+                        alert('获取邮件失败');
+                    }
+                    
+                    // 恢复按钮状态
+                    button.disabled = false;
+                    button.style.opacity = '1';
+                });
+        }
+    </script>
+</body>
+</html>

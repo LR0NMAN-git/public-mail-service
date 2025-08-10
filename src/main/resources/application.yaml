@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: mail-service
+
+server:
+  port: ${SERVER_PORT:8144}
+
+mail:
+  provider: ${MAIL_PROVIDER:generic}
+  server:
+    host: ${MAIL_SERVER_HOST:}
+    port: ${MAIL_SERVER_PORT:}
+    protocol: ${MAIL_SERVER_PROTOCOL:}
+    username: ${MAIL_SERVER_USERNAME:}
+    password: ${MAIL_SERVER_PASSWORD:}
+    folder: ${MAIL_SERVER_FOLDER:INBOX}
+    readtimeout: ${MAIL_SERVER_READTIMEOUT:20000}
+
+app:
+  password: ${APP_PASSWORD:}
+
+logging:
+  config: classpath:log4j2.xml
