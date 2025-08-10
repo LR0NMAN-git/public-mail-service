@@ -129,6 +129,6 @@ jobs:
         echo "JAR file:"
         ls -la build/libs/
         echo "Startup script:"
-        ls -la src/main/resources/scripts/startup.sh
+        ls -la scripts/startup.sh
         echo "Dockerfile:"
         cat Dockerfile | grep COPY

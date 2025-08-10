@@ -24,4 +24,4 @@ if [ ${#missing_vars[@]} -ne 0 ]; then
 fi
 
 # 如果所有变量都已设置，则启动应用程序
-exec java -Dspring.config.location=/app/config/application.yaml -jar /app/app.jar
+exec java -jar /app/app.jar
