@@ -1,0 +1,16 @@
+# 排除不必要的文件和目录
+.git
+.gitignore
+.gradle
+.idea
+.vscode
+*.md
+build.gradle
+settings.gradle
+.dockerignore
+.gitattributes
+HELP.md
+gradle/
+gradlew
+gradlew.bat
+src/

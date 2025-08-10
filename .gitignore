@@ -44,7 +44,5 @@ out/
 .vscode/
 
 # Docker
-.dockerignore
-Dockerfile
 .docker/
 docker-compose.yml
