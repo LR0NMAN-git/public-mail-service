@@ -207,6 +207,7 @@
                     // Handle the API response structure
                     if (apiResponse.success) {
                         const emails = apiResponse.data;
+                        console.log(apiResponse);
                 
                         const container = document.getElementById('emails-container');
                         container.innerHTML = '';
@@ -218,12 +219,18 @@
                                 
                                 // 处理邮件内容，检测并高亮验证码
                                 let emailContent = email.content || '无内容';
-                                // 只匹配4-6位纯数字的验证码
-                                const codeRegex = /(?:^|\s)(\d{4,6})(?:\s|$)/g;
+
+                                // 将换行符转换为HTML的<br>标签
+                                // 连续多个换行符转为两个<br>，单个换行符转为一个<br>
+                                emailContent = emailContent.replace(/(?:[ \t]*\r?\n){2,}/g, '<br><br>').replace(/\r?\n/g, '<br>');
+                                
+                                // 只匹配4-6位纯数字的验证码，同时处理包含<br>标签的情况
+                                const codeRegex = /(?:^|\s|<br>)(\d{4,6})(?:\s|<br>|$)/g;
                                 emailContent = emailContent.replace(codeRegex, function(match, p1) {
                                     // 额外检查：确保不是单词的一部分
                                     if (match.charAt(0) === ' ' || match.charAt(match.length - 1) === ' ' || 
-                                        match.charAt(0) === '\n' || match.charAt(match.length - 1) === '\n') {
+                                        match.charAt(0) === '\n' || match.charAt(match.length - 1) === '\n' ||
+                                        match.includes('<br>')) {
                                         return ` <span class="verification-code">${p1}<span class="copy-icon" onclick="copyToClipboard('${p1}', this)">📋</span></span> `;
                                     }
                                     return match;
