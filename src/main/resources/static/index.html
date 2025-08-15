@@ -9,7 +9,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 20px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: #f0f2f5; /* 莫兰迪浅灰白背景 */
             min-height: 100vh;
         }
         .container {
@@ -17,65 +17,114 @@
             margin: 0 auto;
         }
         .email-card {
-            background: white;
+            background: #ffffff; /* 纯白卡片背景 */
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             margin-bottom: 20px;
             padding: 25px;
             transition: all 0.3s ease;
-            border-left: 4px solid #007bff;
+            border-left: 4px solid #aec6cf; /* 莫兰迪浅蓝色边框 */
         }
         .email-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
         }
         .email-subject {
             font-size: 20px;
             font-weight: 600;
             margin-bottom: 12px;
-            color: #2c3e50;
+            color: #5a5a5a; /* 莫兰迪深灰色标题 */
         }
         .email-from, .email-date {
-            color: #7f8c8d;
+            color: #8a8a8a; /* 莫兰迪中灰色文字 */
             font-size: 15px;
             margin-bottom: 6px;
         }
         .email-content {
             margin-top: 18px;
-            color: #34495e;
+            color: #6a6a6a; /* 莫兰迪浅灰色内容 */
             line-height: 1.6;
-            border-top: 1px solid #ecf0f1;
+            border-top: 1px solid #e0e0e0; /* 莫兰迪浅灰色分隔线 */
             padding-top: 15px;
         }
         .verification-code {
-            background-color: #fff3cd;
+            background-color: #e0f0f7; /* 莫兰迪浅蓝色背景 */
             padding: 2px 6px;
             border-radius: 4px;
             font-weight: bold;
             position: relative;
             display: inline-block;
+            color: #4a6b78; /* 莫兰迪深蓝色文字 */
         }
         .copy-icon {
             cursor: pointer;
             margin-left: 8px;
-            color: #007bff;
+            color: #7a9fb1; /* 莫兰迪蓝色图标 */
             font-weight: bold;
             user-select: none;
         }
         .copy-icon:hover {
-            color: #0056b3;
+            color: #5a8aa1; /* 莫兰迪深蓝色图标悬停效果 */
         }
         .login-form {
-            background: white;
+            background: #ffffff; /* 纯白表单背景 */
             padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             margin-bottom: 30px;
             text-align: center;
         }
+        
+        /* 输入框容器 */
+        .input-container {
+            position: relative;
+            margin-bottom: 15px;
+            width: 220px;
+            margin: 0 auto 15px;
+        }
+        
+        /* 输入框标签 */
+        .input-label {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            font-size: 14px;
+            color: #8a8a8a; /* 莫兰迪中灰色文字 */
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        
+        /* 输入框 */
+        .input-field {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+        
+        /* 输入框聚焦时的样式 */
+        .input-field:focus {
+            outline: none;
+            border-color: #aec6cf; /* 莫兰迪浅蓝色边框 */
+            box-shadow: 0 0 0 2px rgba(174, 198, 207, 0.2);
+        }
+        
+        /* 输入框有内容时标签上移 */
+        .input-field:not(:placeholder-shown) + .input-label,
+        .input-field:focus + .input-label {
+            top: -10px;
+            left: 10px;
+            font-size: 12px;
+            background: #ffffff;
+            padding: 0 5px;
+            color: #aec6cf; /* 莫兰迪浅蓝色文字 */
+        }
         .btn {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-            color: white;
+            background: #5a8aa1; /* 更深的莫兰迪蓝色按钮 */
+            color: #ffffff;
             padding: 12px 30px;
             border: none;
             border-radius: 30px;
@@ -83,17 +132,34 @@
             font-size: 16px;
             font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0,123,255,0.25);
+            box-shadow: 0 2px 8px rgba(90, 138, 161, 0.3);
         }
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,123,255,0.35);
+            box-shadow: 0 4px 12px rgba(90, 138, 161, 0.4);
+            background: #4a6b78; /* 悬停时更深的莫兰迪蓝色 */
         }
         .btn:active {
             transform: translateY(0);
         }
+        
+        /* 禁用状态的按钮样式 */
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+            box-shadow: 0 2px 8px rgba(90, 138, 161, 0.3);
+            background: #5a8aa1; /* 保持与默认状态相同的背景色 */
+            transition: none;
+        }
+        
+        .btn:disabled:hover {
+            transform: none;
+            box-shadow: 0 2px 8px rgba(90, 138, 161, 0.3);
+            background: #5a8aa1; /* 保持与默认状态相同的背景色 */
+        }
         h1 {
-            color: #2c3e50;
+            color: #5a5a5a; /* 莫兰迪深灰色标题 */
             text-align: center;
             margin-bottom: 30px;
             font-weight: 600;
@@ -105,8 +171,9 @@
         <h1>邮箱收件箱</h1>
         
         <div class="login-form">
-            <div style="margin-bottom: 15px;">
-                <input type="password" id="password" placeholder="请输入密码" style="padding: 10px; width: 200px; border-radius: 5px; border: 1px solid #ccc;" />
+            <div class="input-container">
+                <input type="password" id="password" class="input-field" placeholder=" " />
+                <label for="password" class="input-label">请输入密码</label>
             </div>
             <button class="btn" onclick="fetchEmails()">获取/刷新邮件</button>
         </div>
